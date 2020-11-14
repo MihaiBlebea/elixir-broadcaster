@@ -1,5 +1,17 @@
 defmodule Broadcaster.Controller do
 
+    require Logger
+
+    alias Broadcaster.PostRepository
+
+    alias Broadcaster.ImageRepository
+
+    alias Broadcaster.IntroRepository
+
+    alias Broadcaster.ScheduleRepository
+
+    alias Broadcaster.LinkedinPublisher
+
     @spec save_url(binary) :: any
     def save_url(url) when is_binary(url) do
         url
@@ -10,19 +22,50 @@ defmodule Broadcaster.Controller do
         |> store_intros
     end
 
-    @spec post_random :: map
-    def post_random() do
-        post = Broadcaster.PostRepository.find_least_published()
-        IO.inspect post
-        Broadcaster.LinkedinPublisher.publish(
-            %{
-                "url" => Map.get(post, "url", "url"),
-                "title" => Map.get(post, "title", "title"),
-                "description" => Map.get(post, "description", "description"),
-                "img" => Map.get(post, "img", "img"),
-                "intro" => "intro"
-            }
-        )
+    @spec schedule :: :ok
+    def schedule() do
+        post = PostRepository.find_least_published
+        img = ImageRepository.find_least_published
+        intro = IntroRepository.find_least_published
+
+        template = LinkedinPublisher.build_template(%{
+            "url" => Map.get(post, "url", "url"),
+            "title" => Map.get(post, "title", "title"),
+            "description" => Map.get(post, "description", "description"),
+            "img" => Map.get(post, "img", Map.get(img, "url")),
+            "intro" => Map.get(intro, "text")
+        })
+
+        ScheduleRepository.add_schedule(%{
+            "post_id" => Map.fetch!(post, "id"),
+            "template" => template,
+            "platform" => "linkedin"
+        })
+
+        post |> Map.fetch!("id") |> PostRepository.increment_publish_count
+        img |> Map.fetch!("id") |> ImageRepository.increment_publish_count
+        intro |> Map.fetch!("id") |> IntroRepository.increment_publish_count
+
+        Logger.debug inspect(template)
+    end
+
+    @spec get_schedule_today :: map | list
+    def get_schedule_today(), do: ScheduleRepository.find_scheduled_today()
+
+    @spec post_scheduled :: :ok | :fail
+    def post_scheduled() do
+        scheduled = ScheduleRepository.find_one_unpublished
+        case scheduled do
+            [] -> :fail
+            scheduled ->
+                scheduled
+                |> Map.fetch!("template")
+                |> LinkedinPublisher.publish
+                |> inspect
+                |> Logger.debug
+
+                scheduled |> Map.fetch!("id") |> ScheduleRepository.mark_published
+        end
     end
 
     defp sanitize_url(url) when is_binary(url) do

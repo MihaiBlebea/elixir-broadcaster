@@ -1,7 +1,5 @@
 defmodule Benchmark do
 
-    @task_timeout 30000
-
     def eval_scraper() do
         :timer.tc(Broadcaster.Scraper, :scrape, ["https://netflixtechblog.com/how-netflix-scales-its-api-with-graphql-federation-part-1-ae3557c187e2"])
         |> fetch_duration

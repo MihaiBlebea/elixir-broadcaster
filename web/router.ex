@@ -1,12 +1,17 @@
 defmodule Broadcaster.Web.Router do
     use Plug.Router
+
     require Logger
+
+    alias Broadcaster.Controller
 
     plug Plug.Logger
     plug Plug.Static,
         at: "/",
         from: "./doc"
+
     plug :match
+    plug Plug.Parsers, parsers: [:json], json_decoder: JSON
     plug :dispatch
 
     get "/test" do
@@ -14,12 +19,37 @@ defmodule Broadcaster.Web.Router do
     end
 
     post "/save" do
-        {:ok, request, _} = Plug.Conn.read_body(conn)
-        request
-        |> JSON.decode!
-        |> Broadcaster.PostRepository.add_post
+        case conn do
+            %{body_params: %{"url" => url}} ->
+                url |> Broadcaster.Controller.save_url
+                send_resp(conn, 200, "All working fine")
+            _ -> send_resp(conn, 500, "Please provide url param in body")
+        end
+    end
 
-        send_resp(conn, 200, "All working fine")
+    get "/today" do
+        %{params: params} = Plug.Conn.fetch_query_params(conn)
+
+        res = case Map.get(params, "published", nil) do
+            nil -> Controller.get_schedule_today
+            "true" -> Controller.get_schedule_today
+            "false" -> Controller.get_schedule_today
+        end
+
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, JSON.encode!(res))
+    end
+
+    post "/publish" do
+        res = case conn do
+            %{body_params: %{"schedule_id" => id}} -> Controller.post_scheduled
+            _ -> Controller.post_scheduled
+        end
+
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, JSON.encode!(res))
     end
 
     match _ do

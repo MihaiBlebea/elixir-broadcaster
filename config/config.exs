@@ -3,12 +3,14 @@ use Mix.Config
 alias Broadcaster.Worker
 
 config :broadcaster,
-    port: "8081"
+    port: "8081",
+    linkedin_publisher: Broadcaster.LinkedinPublisher
 
 config :broadcaster, Worker,
     jobs: [
-        # {"1,30 8-17 * * *", &Worker.tell_joke/0 },
-        # {"0 8-17/1 * * *", &Worker.list_tasks/0 }
+        # {"0 6 * * * ", &Worker.schedule/0 },
+        # {"0 11 * * *", &Worker.publish/0 }
     ]
+
 
 import_config "config.#{ Mix.env() }.exs"

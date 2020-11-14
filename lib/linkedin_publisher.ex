@@ -13,9 +13,14 @@ defmodule Broadcaster.LinkedinPublisher do
     @post_visibility "PUBLIC"
 
     @spec publish(map) :: :ok | :fail
-    def publish(%{"url" => url, "title" => title, "description" => description, "img" => img, "intro" => intro}) do
-        request_body = template(url, title, description, img, intro) |> JSON.encode!
-        %{body: body, status_code: code} = HTTPoison.post!("#{ @base_url }/ugcPosts", request_body, get_default_headers())
+    def publish(template) do
+        template |> inspect |> Logger.debug
+
+        %{body: body, status_code: code} = HTTPoison.post!(
+            "#{ @base_url }/ugcPosts",
+            JSON.encode!(template),
+            get_default_headers()
+        )
 
         case code do
             200 -> :ok
@@ -25,8 +30,8 @@ defmodule Broadcaster.LinkedinPublisher do
         end
     end
 
-    @spec template(binary, binary, binary, binary, binary) :: map
-    def template(url, title, description, _img, intro) do
+    @spec build_template(map) :: map
+    def build_template(%{"url" => url, "title" => title, "description" => description, "img" => _img, "intro" => intro}) do
         %{
             "author" => @user_id,
             "lifecycleState" => @post_state,
@@ -51,7 +56,7 @@ defmodule Broadcaster.LinkedinPublisher do
                     ],
                     "shareCommentary" => %{
                         "attributes" => [],
-                        "text" => intro
+                        "text" => build_intro(title, intro)
                     },
                     "shareMediaCategory" => "ARTICLE"
                 }
@@ -60,6 +65,10 @@ defmodule Broadcaster.LinkedinPublisher do
                 "com.linkedin.ugc.MemberNetworkVisibility" => @post_visibility
             }
         }
+    end
+
+    defp build_intro(title, intro) do
+        "#{ title } \n #{ intro }"
     end
 
     defp get_default_headers, do: ["Authorization": "Bearer #{ @token }", "Content-Type": "application/json", "X-Restli-Protocol-Version": "2.0.0"]
