@@ -3,7 +3,13 @@ defmodule Broadcaster do
 
     require Logger
 
+    alias Broadcaster.PostRepository
+
     alias Broadcaster.ScheduleRepository
+
+    alias Broadcaster.ImageRepository
+
+    alias Broadcaster.IntroRepository
 
     @spec start(any, any) :: {:error, any} | {:ok, pid}
     def start(_type, _args) do
@@ -21,8 +27,15 @@ defmodule Broadcaster do
 
         supervisor = Supervisor.start_link(children, strategy: :one_for_one)
 
-        ScheduleRepository.create_table
+        migrate_db()
 
         supervisor
+    end
+
+    defp migrate_db() do
+        PostRepository.create_table
+        ScheduleRepository.create_table
+        ImageRepository.create_table
+        IntroRepository.create_table
     end
 end

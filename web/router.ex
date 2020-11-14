@@ -43,7 +43,7 @@ defmodule Broadcaster.Web.Router do
 
     post "/publish" do
         res = case conn do
-            %{body_params: %{"schedule_id" => id}} -> Controller.post_scheduled
+            %{body_params: %{"schedule_id" => _id}} -> Controller.post_scheduled
             _ -> Controller.post_scheduled
         end
 
