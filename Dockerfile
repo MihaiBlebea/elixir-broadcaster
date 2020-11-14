@@ -30,8 +30,8 @@ RUN mix release
 FROM ubuntu AS app
 
 ENV LANG=C.UTF-8
-ENV LINKEDIN_TOKEN=${LINKEDIN_TOKEN}
-ENV HTTP_PORT=${HTTP_PORT}
+# ENV LINKEDIN_TOKEN=${LINKEDIN_TOKEN}
+# ENV HTTP_PORT=${HTTP_PORT}
 
 # Install openssl
 RUN apt-get update && apt-get install -y openssl
@@ -45,7 +45,7 @@ USER app
 
 RUN cd ./prod/rel && ls
 
-EXPOSE ${HTTP_PORT}
+EXPOSE 8080
 
 # Run the Phoenix app
 CMD ["./prod/rel/broadcaster/bin/broadcaster", "start"]

@@ -4,9 +4,9 @@ defmodule Broadcaster.LinkedinPublisher do
 
     @base_url "https://api.linkedin.com/v2"
 
-    @user_id "urn:li:person:poh_wxCNVI"
+    @user_id Application.get_env(:broadcaster, :linkedin_user)
 
-    @token "AQXddWv4RzR-BIQLGno-mWbqnrgrsL8C_BCXD7a7KgNseXOfMPgH-B3yTu6mNcWOymxCby778ore61fsTG1X4SXoOvHCbelQqZOKIu8cMeXodEMqN1pOrf-iW7nirTA1ryPUb4-jtOVkludJ3nQXN8MvkRHjaKQP1ZHjAPEgs0kvTZjkXo7N1gCzSMTTPP7Gr2KcxAG5h-K56wkoId8l67edSiK4AOf8hixBes3UXv_klUZ9ZoZJ5Ibc7jluDVJ7clrp_fuPMU6n2CrBcFauP0c3iuVJfMa0pDN4mg2pG4kQi3yjk_J0UAM0k854XwSE8XHBw-Q0mxY3KsZAJA2ZV11CtsM7EA"
+    @token Application.get_env(:broadcaster, :linkedin_token)
 
     @post_state "PUBLISHED"
 

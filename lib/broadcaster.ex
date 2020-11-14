@@ -15,19 +15,28 @@ defmodule Broadcaster do
     def start(_type, _args) do
         port = Application.get_env(:broadcaster, :port) |> String.to_integer()
 
-        Logger.debug inspect("Application starting on port #{ port } and #{ Mix.env } env...")
+        Logger.debug inspect("Application starting on port #{ port }...")
 
         Logger.debug inspect(Application.get_all_env(:broadcaster))
 
         children = [
             {Plug.Cowboy, scheme: :http, plug: Broadcaster.Web.Router, options: [port: port]},
+            {
+                MyXQL,
+                # show_sensitive_data_on_connection_error: true,
+                username: Application.get_env(:broadcaster, :mysql_user),
+                password: Application.get_env(:broadcaster, :mysql_password),
+                hostname: Application.get_env(:broadcaster, :mysql_host),
+                port: Application.get_env(:broadcaster, :mysql_port),
+                database: Application.get_env(:broadcaster, :mysql_database),
+                name: :broadcaster_db
+            },
             Broadcaster.Worker,
-            {MyXQL, username: "admin", password: "pass", hostname: "localhost", database: "codebot", name: :broadcaster_db}
         ]
 
         supervisor = Supervisor.start_link(children, strategy: :one_for_one)
 
-        migrate_db()
+        # migrate_db()
 
         supervisor
     end
