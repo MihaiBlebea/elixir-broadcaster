@@ -14,9 +14,8 @@ config :broadcaster,
     mysql_database: "broadcaster"
 
 config :broadcaster, Worker,
-    timezone: "Europe/London",
     timeout: :infinity,
     jobs: [
-        {"0 6 * * *", &Worker.schedule/0},
-        {"0 11 * * *", &Worker.publish/0}
+        {"0 11 * * *", &Worker.schedule/0},
+        {"0 12 * * *", &Worker.publish/0}
     ]

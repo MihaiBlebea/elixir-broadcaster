@@ -13,13 +13,13 @@ config :broadcaster,
     mysql_port: 3306,
     mysql_database: "broadcaster"
 
-config :broadcaster, Worker,
-    timezone: "Europe/London",
-    timeout: :infinity,
-    jobs: [
-        {"*/5 * * * *", &Worker.schedule/0 },
-        {"*/10 * * * *", &Worker.publish/0 }
-    ]
+# config :broadcaster, Worker,
+#     timezone: "Europe/London",
+#     timeout: :infinity,
+#     jobs: [
+#         {"*/5 * * * *", &Worker.schedule/0 },
+#         {"*/10 * * * *", &Worker.publish/0 }
+#     ]
 
 
 import_config "config.#{ Mix.env() }.exs"
