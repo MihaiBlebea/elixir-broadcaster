@@ -36,7 +36,7 @@ defmodule Broadcaster do
 
         supervisor = Supervisor.start_link(children, strategy: :one_for_one)
 
-        # migrate_db()
+        migrate_db()
 
         supervisor
     end
