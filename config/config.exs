@@ -9,7 +9,7 @@ config :broadcaster,
     mysql_user: "root",
     mysql_password: "root",
     mysql_root: "root",
-    mysql_host: "maria-db.cap-rover.purpletreetech.com",
+    mysql_host: "srv-captain--platform-db-db",
     mysql_port: 3306,
     mysql_database: "broadcaster"
 
